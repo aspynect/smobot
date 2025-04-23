@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 import requests
 import json
+import datetime
 
 with open('secrets.json', 'r') as file:
     secrets = json.load(file)
@@ -19,14 +20,20 @@ async def runner(interaction: discord.Interaction, username: str):
     userData = response.json()
     discordData = next((entry for entry in userData["userSocialConnectionList"] if entry.get("networkId") == 5), None)
     if discordData is None:
-        await interaction.response.send_message("No discord linked to SR.C account", ephemeral = True)
+        await interaction.response.send_message("No discord linked to Speedrun.com account", ephemeral = True)
         return
     if discordData["value"] != interaction.user.name:
-        await interaction.response.send_message("Discord name does not match SR.C account", ephemeral = True)
+        await interaction.response.send_message("Discord name does not match Speedrun.com account", ephemeral = True)
         return
     if discordData["verified"] == False:
-        await interaction.response.send_message("Discord account not verified on SR.C", ephemeral = True)
+        await interaction.response.send_message("Discord account not verified on Speedrun.com. Please re-link your discord account in Speedrun.com", ephemeral = True)
         return
+    
+    totalTime = sum(entry["totalTime"] for entry in userData["userGameRunnerStats"] if entry["gameId"] in ["76r55vd8", "m1mxxw46"])
+    if totalTime < 3600:
+        await interaction.response.send_message(f"You must have a total of 1 hour of runs. your current total run duration: {datetime.timedelta(seconds=totalTime)}", ephemeral = True)
+        return
+
     await interaction.user.add_roles(discord.utils.get(interaction.guild.roles, name="Runner"))
     await interaction.response.send_message("Role granted!", ephemeral = True)
 
