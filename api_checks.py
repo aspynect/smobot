@@ -16,19 +16,19 @@ class RunnerResult(Enum):
 
 
 def checkRunnerRole(discord_name: str, src_username: str) -> RunnerResult:
-    api_req = requests.get(USER_SUMMARY_ENDPOINT.format(src_username))
+    api_request = requests.get(USER_SUMMARY_ENDPOINT.format(src_username))
 
-    if api_req.status_code == 404:
+    if api_request.status_code == 404:
         return RunnerResult.AccountNotFound
-    elif api_req.status_code != 200:
+    elif api_request.status_code != 200:
         return RunnerResult.UnknownError
 
-    api_req_json = api_req.json()
+    api_request_json = api_request.json()
 
     discord_data = next(
         (
             entry
-            for entry in api_req_json["userSocialConnectionList"]
+            for entry in api_request_json["userSocialConnectionList"]
             if entry.get("networkId") == 5
         ),
         None,
@@ -43,7 +43,7 @@ def checkRunnerRole(discord_name: str, src_username: str) -> RunnerResult:
 
     total_time = sum(
         entry["totalTime"]
-        for entry in api_req_json["userGameRunnerStats"]
+        for entry in api_request_json["userGameRunnerStats"]
         if entry["gameId"] in ["76r55vd8", "m1mxxw46"]
     )
 
