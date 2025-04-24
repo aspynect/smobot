@@ -15,12 +15,20 @@ tree = app_commands.CommandTree(client)
 @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
 @app_commands.describe(username="Your Speedrun.com Username")
 async def runner(interaction: discord.Interaction, username: str):
-    result = checkRunnerRole(interaction.user.name, username)
+    runnerRole = discord.utils.get(interaction.guild.roles, name="Runner")
+    # We should change this to be Role ID based. Not that it matters too much, but I would prefer if it was more specific than simply "any role named Runner"
+
+    if runnerRole in interaction.user.roles:
+        await interaction.user.remove_roles(runnerRole)
+        await interaction.response.send_message(
+            "Runner role has been removed.", ephemeral=True
+        )
+        return
+
+    result = checkRunnerRole(interaction.user.name, username)  
 
     if result == RunnerResult.IsEligible:
-        await interaction.user.add_roles(
-            discord.utils.get(interaction.guild.roles, name="Runner")
-        )  # We should change this to be Role ID based. Not that it matters too much, but I would prefer if it was more specific than simply "any role named Runner"
+        await interaction.user.add_roles(runnerRole) 
 
     await interaction.response.send_message(
         runnerResultToErrorString(result), ephemeral=True
