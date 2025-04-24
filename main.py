@@ -10,7 +10,7 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 
-@tree.command(name="runner", description="Get the 'Runner' role")
+@tree.command(name="runner", description="Get the 'Runner' role. Removes the role if you already have it.")
 @app_commands.allowed_installs(guilds=True, users=False)
 @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
 @app_commands.describe(username="Your Speedrun.com Username")
