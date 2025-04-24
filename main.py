@@ -1,55 +1,31 @@
 import discord
 from discord import app_commands
-import requests
 import json
-import datetime
+from api_checks import checkRunnerRole, RunnerResult, runnerResultToErrorString
 
-with open('secrets.json', 'r') as file:
+with open("secrets.json", "r") as file:
     secrets = json.load(file)
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
-@tree.command(name="runner",description="Get the 'runner' role")
+
+@tree.command(name="runner", description="Get the 'Runner' role")
 @app_commands.allowed_installs(guilds=True, users=False)
 @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
 @app_commands.describe(username="Your Speedrun.com Username")
 async def runner(interaction: discord.Interaction, username: str):
-    # embed = discord.Embed(title = f"{user.name}'s PFP", color = myColor)
-    response = requests.get(f"https://www.speedrun.com/api/v2/GetUserSummary?url={username}")
-    userData = response.json()
-    discordData = next((entry for entry in userData["userSocialConnectionList"] if entry.get("networkId") == 5), None)
-    if discordData is None:
-        await interaction.response.send_message("No discord linked to Speedrun.com account", ephemeral = True)
-        return
-    if discordData["value"] != interaction.user.name:
-        await interaction.response.send_message("Discord name does not match Speedrun.com account", ephemeral = True)
-        return
-    if discordData["verified"] == False:
-        await interaction.response.send_message("Discord account not verified on Speedrun.com. Please re-link your discord account in Speedrun.com", ephemeral = True)
-        return
-    
-    totalTime = sum(entry["totalTime"] for entry in userData["userGameRunnerStats"] if entry["gameId"] in ["76r55vd8", "m1mxxw46"])
-    if totalTime < 3600:
-        await interaction.response.send_message(f"You must have a total of 1 hour of runs. your current total run duration: {datetime.timedelta(seconds=totalTime)}", ephemeral = True)
-        return
+    result = checkRunnerRole(interaction.user.name, username)
 
-    await interaction.user.add_roles(discord.utils.get(interaction.guild.roles, name="Runner"))
-    await interaction.response.send_message("Role granted!", ephemeral = True)
+    if result == RunnerResult.IsEligible:
+        await interaction.user.add_roles(
+            discord.utils.get(interaction.guild.roles, name="Runner")
+        )  # We should change this to be Role ID based. Not that it matters too much, but I would prefer if it was more specific than simply "any role named Runner"
 
+    await interaction.response.send_message(
+        runnerResultToErrorString(result), ephemeral=True
+    )
 
-
-@tree.command(name="sync",description="sync")
-@app_commands.allowed_installs(guilds=True, users=False)
-@app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-async def sync(interaction: discord.Interaction):
-    await tree.sync()
-    await interaction.response.send_message("sunk!", ephemeral = True)
-    print("Sunk!")
-
-@client.event
-async def on_ready():
-    print("Ready!")
 
 if __name__ == "__main__":
     client.run(secrets["token"])
