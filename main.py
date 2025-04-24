@@ -20,7 +20,7 @@ async def runner(interaction: discord.Interaction, username: str):
     if runnerRole in interaction.user.roles:
         await interaction.user.remove_roles(runnerRole)
         await interaction.response.send_message(
-            "'Runner' role has been removed.", ephemeral=True
+            "The 'Runner' role has been removed.", ephemeral=True
         )
         return
 
