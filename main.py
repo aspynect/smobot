@@ -57,6 +57,15 @@ async def role(interaction: discord.Interaction, role: app_commands.Choice[str])
             f"The '{role.name}' role has been given.", ephemeral=True
         )
 
+
+@tree.command(name="sync",description="sync")
+@app_commands.allowed_installs(guilds=True, users=False)
+@app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+async def sync(interaction: discord.Interaction):
+    await tree.sync()
+    await interaction.response.send_message("sunk!", ephemeral = True)
+    print("Sunk!")
+
 @client.event
 async def on_ready():
     print("Ready!")
