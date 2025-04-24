@@ -36,10 +36,10 @@ def checkRunnerRole(discord_name: str, src_username: str) -> RunnerResult:
 
     if discord_data is None:
         return RunnerResult.DiscordNotFound
-    elif discord_data["value"] != discord_name:
-        return RunnerResult.DiscordNameNotMatch
     elif not discord_data["verified"]:
         return RunnerResult.DiscordNotVerified
+    elif discord_data["value"] != discord_name:
+        return RunnerResult.DiscordNameNotMatch
 
     total_time = sum(
         entry["totalTime"]
