@@ -1,9 +1,7 @@
 import requests
 from enum import Enum
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
 RUNNER_THRESHOLD = int(os.environ.get("RUNNER_THRESHOLD", 3600))
 
 ENDPOINT: str = "https://www.speedrun.com/api/v2/"

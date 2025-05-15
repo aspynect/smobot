@@ -1,18 +1,18 @@
 import discord
 from discord import app_commands
-import json
 import os
-from dotenv import load_dotenv
 from api_checks import checkRunnerRole, RunnerResult, runnerResultToErrorString
 
-load_dotenv()
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 
-@tree.command(name="runner", description="Get the 'Runner' role. Removes the role if you already have it.")
+@tree.command(
+    name="runner",
+    description="Get the 'Runner' role. Removes the role if you already have it.",
+)
 @app_commands.allowed_installs(guilds=True, users=False)
 @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
 @app_commands.describe(username="Your Speedrun.com Username")
@@ -26,28 +26,29 @@ async def runner(interaction: discord.Interaction, username: str):
         )
         return
 
-    result = checkRunnerRole(interaction.user.name, username)  
+    result = checkRunnerRole(interaction.user.name, username)
 
     if result == RunnerResult.IsEligible:
-        await interaction.user.add_roles(runnerRole) 
+        await interaction.user.add_roles(runnerRole)
 
     await interaction.response.send_message(
         runnerResultToErrorString(result), ephemeral=True
     )
 
 
-@tree.command(name="sync",description="sync")
+@tree.command(name="sync", description="sync")
 @app_commands.allowed_installs(guilds=True, users=False)
 @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
 async def sync(interaction: discord.Interaction):
     await tree.sync()
-    await interaction.response.send_message("sunk!", ephemeral = True)
+    await interaction.response.send_message("sunk!", ephemeral=True)
     print("Sunk!")
 
 
 @client.event
 async def on_ready():
     print("Ready!")
+
 
 if __name__ == "__main__":
     client.run(DISCORD_TOKEN)
