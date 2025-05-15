@@ -2,13 +2,24 @@ import discord
 from discord import app_commands
 from os import getenv
 from api_checks import checkRunnerRole, RunnerResult, runnerResultToErrorString
+from bot_logs import createLogEmbed
 
 DISCORD_TOKEN = getenv("DISCORD_TOKEN", "NO TOKEN PROVIDED")
+LOG_CHANNEL_ID = int(getenv("LOG_CHANNEL_ID", "NO LOG CHANNEL ID PROVIDED"))
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
+async def log_command(interacton: discord.Interaction, command_response: str):
+    print("Logging command usage...")
+    if type(LOG_CHANNEL_ID) is str:
+        print("No log channel ID provided.")
+        return
+    user = interacton.user
+    embed = createLogEmbed(timestamp = interacton.created_at, username=user.name, user_id=user.id, command_name=interacton.command.name, command_response=command_response)
+    log_channel = client.get_channel(LOG_CHANNEL_ID)
+    await log_channel.send(embed=embed)
 
 @tree.command(
     name="runner",
@@ -22,6 +33,10 @@ async def runner(interaction: discord.Interaction, username: str):
 
     if runnerRole in interaction.user.roles:
         await interaction.user.remove_roles(runnerRole)
+        await log_command(
+            interacton = interaction,
+            command_response = "The 'Runner' role has been removed."
+        )
         await interaction.response.send_message(
             "The 'Runner' role has been removed.", ephemeral=True
         )
@@ -31,9 +46,16 @@ async def runner(interaction: discord.Interaction, username: str):
 
     if result == RunnerResult.IsEligible:
         await interaction.user.add_roles(runnerRole)
+        
+    resultString = runnerResultToErrorString(result)
+
+    await log_command(
+        interacton = interaction,
+        command_response = resultString
+    )
 
     await interaction.response.send_message(
-        runnerResultToErrorString(result), ephemeral=True
+        resultString, ephemeral=True
     )
 
 

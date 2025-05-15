@@ -6,5 +6,6 @@ services:
     environment:
       - DISCORD_TOKEN=<token>
       - SMO_CHECKED_GAMES=<SRC IDs>
+      - LOG_CHANNEL_ID=<channel ID>
       # Optional
       - RUNNER_THRESHOLD=3600
