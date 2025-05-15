@@ -7,7 +7,6 @@ from api_checks import checkRunnerRole, RunnerResult, runnerResultToErrorString
 
 load_dotenv()
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
-
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
