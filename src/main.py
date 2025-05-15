@@ -1,9 +1,10 @@
 import discord
 from discord import app_commands
-import os
+from os import getenv
 from api_checks import checkRunnerRole, RunnerResult, runnerResultToErrorString
 
-DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
+DISCORD_TOKEN = getenv("DISCORD_TOKEN", "NO TOKEN PROVIDED")
+
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)

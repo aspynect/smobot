@@ -1,8 +1,8 @@
 import requests
 from enum import Enum
-import os
+from os import getenv
 
-RUNNER_THRESHOLD = int(os.environ.get("RUNNER_THRESHOLD", 3600))
+RUNNER_THRESHOLD = int(getenv("RUNNER_THRESHOLD", 3600))
 
 ENDPOINT: str = "https://www.speedrun.com/api/v2/"
 USER_SUMMARY_ENDPOINT: str = ENDPOINT + "GetUserSummary?url={}"
