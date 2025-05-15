@@ -1,0 +1,10 @@
+services:
+  smobot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DISCORD_TOKEN=<token>
+      - SMO_CHECKED_GAMES=<SRC IDs>
+      # Optional
+      - RUNNER_THRESHOLD=3600
