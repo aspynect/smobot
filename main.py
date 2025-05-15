@@ -1,10 +1,12 @@
 import discord
 from discord import app_commands
 import json
+import os
+from dotenv import load_dotenv
 from api_checks import checkRunnerRole, RunnerResult, runnerResultToErrorString
 
-with open("secrets.json", "r") as file:
-    secrets = json.load(file)
+load_dotenv()
+DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
@@ -34,30 +36,6 @@ async def runner(interaction: discord.Interaction, username: str):
     )
 
 
-@tree.command(name="role", description="Get or remove a role.")
-@app_commands.allowed_installs(guilds=True, users=False)
-@app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
-@app_commands.describe(role="The role that you want to get or remove.")
-@app_commands.choices(role=[
-    app_commands.Choice(
-        name = secrets["roles"][i], value = secrets["roles"][i]) 
-        for i in range(len(secrets["roles"]))
-    ]
-)
-async def role(interaction: discord.Interaction, role: app_commands.Choice[str]):
-    desiredRole = discord.utils.get(interaction.guild.roles, name=role.name)
-    if desiredRole in interaction.user.roles:
-        await interaction.user.remove_roles(desiredRole)
-        await interaction.response.send_message(
-            f"The '{role.name}' role has been removed.", ephemeral=True
-        )
-    else:
-        await interaction.user.add_roles(desiredRole)
-        await interaction.response.send_message(
-            f"The '{role.name}' role has been given.", ephemeral=True
-        )
-
-
 @tree.command(name="sync",description="sync")
 @app_commands.allowed_installs(guilds=True, users=False)
 @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
@@ -72,4 +50,4 @@ async def on_ready():
     print("Ready!")
 
 if __name__ == "__main__":
-    client.run(secrets["token"])
+    client.run(DISCORD_TOKEN)
