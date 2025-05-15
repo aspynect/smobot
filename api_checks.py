@@ -1,5 +1,10 @@
 import requests
 from enum import Enum
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+RUNNER_THRESHOLD = int(os.environ.get("RUNNER_THRESHOLD", 3600))
 
 ENDPOINT: str = "https://www.speedrun.com/api/v2/"
 USER_SUMMARY_ENDPOINT: str = ENDPOINT + "GetUserSummary?url={}"
@@ -47,7 +52,7 @@ def checkRunnerRole(discord_name: str, src_username: str) -> RunnerResult:
         if entry["gameId"] in ["76r55vd8", "m1mxxw46"]
     )
 
-    if total_time < 3600:
+    if total_time < RUNNER_THRESHOLD:
         return RunnerResult.NotEnoughOdysseyRuns
     else:
         return RunnerResult.IsEligible

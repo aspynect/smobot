@@ -2,8 +2,8 @@ import discord
 from discord import app_commands
 import json
 import os
-from api_checks import checkRunnerRole, RunnerResult, runnerResultToErrorString
 from dotenv import load_dotenv
+from api_checks import checkRunnerRole, RunnerResult, runnerResultToErrorString
 
 load_dotenv()
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
