@@ -3,6 +3,7 @@ from enum import Enum
 from os import getenv
 
 RUNNER_THRESHOLD = int(getenv("RUNNER_THRESHOLD", 3600))
+SMO_CHECKED_GAMES = getenv("SMO_CHECKED_GAMES", "").split(",")
 
 ENDPOINT: str = "https://www.speedrun.com/api/v2/"
 USER_SUMMARY_ENDPOINT: str = ENDPOINT + "GetUserSummary?url={}"
@@ -47,7 +48,7 @@ def checkRunnerRole(discord_name: str, src_username: str) -> RunnerResult:
     total_time = sum(
         entry["totalTime"]
         for entry in api_request_json["userGameRunnerStats"]
-        if entry["gameId"] in ["76r55vd8", "m1mxxw46"]
+        if entry["gameId"] in SMO_CHECKED_GAMES
     )
 
     if total_time < RUNNER_THRESHOLD:
