@@ -1,6 +1,6 @@
 # smobot
 ## environment variables
-### required
+### required in .env
 DISCORD_TOKEN="foo"
 ### optional
 RUNNER_THRESHOLD="3600"
