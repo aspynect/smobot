@@ -14,4 +14,4 @@
 ## docker instructions
 
 - docker build -t smobot-image .
-- docker run --env-file .env smobot-image
+- docker run -e DISCORD_TOKEN="<token>" smobot-image
