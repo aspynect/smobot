@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from os import getenv
 from api_checks import checkRunnerRole, RunnerResult, runnerResultToErrorString
-from bot_logs import createLogEmbed
+from bot_logs import UserInfo, createLogEmbed
 
 DISCORD_TOKEN = getenv("DISCORD_TOKEN", "NO TOKEN PROVIDED")
 LOG_CHANNEL_ID = int(getenv("LOG_CHANNEL_ID", "NO LOG CHANNEL ID PROVIDED"))
@@ -11,15 +11,6 @@ intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
-async def log_command(interacton: discord.Interaction, command_response: str):
-    print("Logging command usage...")
-    if type(LOG_CHANNEL_ID) is str:
-        print("No log channel ID provided.")
-        return
-    user = interacton.user
-    embed = createLogEmbed(timestamp = interacton.created_at, username=user.name, user_id=user.id, command_name=interacton.command.name, command_response=command_response)
-    log_channel = client.get_channel(LOG_CHANNEL_ID)
-    await log_channel.send(embed=embed)
 
 @tree.command(
     name="runner",
@@ -31,32 +22,46 @@ async def log_command(interacton: discord.Interaction, command_response: str):
 async def runner(interaction: discord.Interaction, username: str):
     runnerRole = discord.utils.get(interaction.guild.roles, name="Runner")
 
+    result = RunnerResult.UnknownError
+
     if runnerRole in interaction.user.roles:
         await interaction.user.remove_roles(runnerRole)
-        await log_command(
-            interacton = interaction,
-            command_response = "The 'Runner' role has been removed."
-        )
-        await interaction.response.send_message(
-            "The 'Runner' role has been removed.", ephemeral=True
-        )
-        return
+        result = RunnerResult.ObtainedRemoval
+    else:
+        result = checkRunnerRole(interaction.user.name, username)
 
-    result = checkRunnerRole(interaction.user.name, username)
+        if result == RunnerResult.IsEligible:
+            await interaction.user.add_roles(runnerRole)
 
-    if result == RunnerResult.IsEligible:
-        await interaction.user.add_roles(runnerRole)
-        
+    print(
+        "Runner Role: {0} wrote {1} and got {2}.".format(
+            interaction.user.name,
+            username,
+            result.name,
+        )
+    )
+    if LOG_CHANNEL_ID != "NO LOG CHANNEL ID PROVIDED":
+        embed = createLogEmbed(
+            UserInfo(
+                name=interaction.user.name,
+                picture_url=interaction.user.avatar.url,
+                discord_id=interaction.user.id,
+            ),
+            username,
+            result,
+            UserInfo(
+                name=client.user.name,
+                picture_url=client.user.avatar.url,
+                discord_id=client.user.id,
+            ),
+        )
+        log_channel = client.get_channel(LOG_CHANNEL_ID)
+        if log_channel:
+            await log_channel.send(embed=embed)
+
     resultString = runnerResultToErrorString(result)
 
-    await log_command(
-        interacton = interaction,
-        command_response = resultString
-    )
-
-    await interaction.response.send_message(
-        resultString, ephemeral=True
-    )
+    await interaction.response.send_message(resultString, ephemeral=True)
 
 
 @tree.command(name="sync", description="sync")
