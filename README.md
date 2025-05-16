@@ -8,6 +8,7 @@
 - SMO_CHECKED_GAMES: The list of games to check for the appropriate runner
   threshold. Comma separated string, with each value as the SRC API ID (for
   example: 76r55vd8,m1mxxw46).
+- LOG_CHANNEL_ID: The ID of a channel to send log messages in.
 
 ### optional
 

@@ -17,6 +17,7 @@ class RunnerResult(Enum):
     DiscordNotVerified = 4
     NotEnoughOdysseyRuns = 5
     UnknownError = 6
+    ObtainedRemoval = 7
 
 
 def checkRunnerRole(discord_name: str, src_username: str) -> RunnerResult:
@@ -73,3 +74,5 @@ def runnerResultToErrorString(result: RunnerResult) -> str:
             return "You have not run Super Mario Odyssey enough to be eligible for the 'Runner' role. You must have at least one hour of total time across verified submissions."
         case RunnerResult.UnknownError:
             return "Something went wrong when attempting to look up your information. Speedrun.com may just be having issues. If this happens repeatedly, please message a moderator."
+        case RunnerResult.ObtainedRemoval:
+            return "The 'Runner' role has been removed."
